@@ -86,12 +86,11 @@ public class SysUserImpl  implements UserDetailsService {
 
         BeanUtils.copyProperties(updateUserVO, sysUser);
         int updateCount = sysUserDao.updateById(sysUser);
-        if (updateCount != 1) {
-            throw new RuntimeException("更新用户信息失败");
-        } else {
-            return updateCount;
 
-        }
+
+        return updateCount;
+
+
     }
 
     //删除用户
@@ -101,14 +100,12 @@ public class SysUserImpl  implements UserDetailsService {
         //判断用户名是否存在
         if (sysUser == null) {
             throw new RuntimeException("用户名不存在");
-        } else {
-            int deleteCount = sysUserDao.deleteById(id);
-            if (deleteCount != 1) {
-                throw new RuntimeException("删除用户失败");
-            } else {
-                return deleteCount;
-            }
         }
+        int deleteCount = sysUserDao.deleteById(id);
+
+        return deleteCount;
+
+
 
     }
 

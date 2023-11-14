@@ -18,7 +18,7 @@ public class SysUserController {
     @Autowired
     SysUserImpl sysUserImpl;
 
-    @PostMapping("/addUser")
+   @PostMapping("/addUser")
 
 
     public ResponseResult addUser(@RequestBody AddUserVO addUserVO){
@@ -38,57 +38,53 @@ public class SysUserController {
 
     @PostMapping("/updateUser")
     @PreAuthorize("hasAuthority('system:user:edit')")
-    public String updateUser(@RequestBody UpdateUserVO updateUserVO) {
+    public ResponseResult updateUser(@RequestBody UpdateUserVO updateUserVO) {
         try {
             int inserCount =  sysUserImpl.updateUser(updateUserVO);
             if(inserCount == 1){
-                return "更新成功";
-            }else{
-                return "更新失败";
+                return new ResponseResult(HttpStatus.OK.value(), "更新成功");
             }
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "添加失败");
+
         } catch (Exception e) {
             e.printStackTrace();
-            return "更新失败";
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "添加失败");
         }
 
     }
 
     @PostMapping("/deleteUser")
-    public String deleteUser(@RequestParam("id") Long id) {
+    public ResponseResult deleteUser(@RequestParam("id") Long id) {
         try {
             int inserCount =  sysUserImpl.deleteUser(id);
             if(inserCount == 1){
-                return "删除成功";
-            }else{
-                return "删除失败";
+                return new ResponseResult(HttpStatus.OK.value(), "删除成功");
             }
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "删除失败");
         } catch (Exception e) {
             e.printStackTrace();
-            return "删除失败";
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "删除失败");
         }
 
     }
     @PostMapping("/selectUserById")
-    public String selectUserById(@RequestParam("id") Long id) {
+    public ResponseResult selectUserById(@RequestParam("id") Long id) {
+        SysUserPojo data = null;
         try {
             System.out.println(id);
-            SysUserPojo data =  sysUserImpl.selectUserById(id);
+            data = sysUserImpl.selectUserById(id);
             System.out.println(data);
-            if(data != null){
-                return "查询成功";
-            }else{
-                return "查询失败";
-            }
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", data);
         } catch (Exception e) {
             e.printStackTrace();
-            return "查询失败";
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
         }
 
     }
 
 
     @PostMapping("selectUserByPage")
-    public String selectUserByPage(@RequestBody SearchUserVO searchUserVO) {
+    public ResponseResult selectUserByPage(@RequestBody SearchUserVO searchUserVO) {
         try {
 
             Page<SysUserPojo> data =  sysUserImpl.selectUserByPage(searchUserVO.getPageNum(),searchUserVO.getPageSize(),searchUserVO.getKeyWord());
@@ -97,15 +93,11 @@ public class SysUserController {
             for (SysUserPojo sysUserPojo : data.getRecords()) {
                 System.out.println(sysUserPojo);
             }
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", data);
 
-            if(data != null){
-                return "查询成功";
-            }else{
-                return "查询失败";
-            }
         } catch (Exception e) {
             e.printStackTrace();
-            return "查询失败";
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
         }
 
     }

@@ -16,7 +16,8 @@ public class RedisConfig {
         RedisTemplate<Object, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
-        com.dong.utils.FastJsonRedisSerializer serializer = new com.dong.utils.FastJsonRedisSerializer(Object.class);
+        com.example.imaubookmanager.untils.FastJsonRedisSerializer serializer = new com.example.imaubookmanager.untils.FastJsonRedisSerializer(Object.class);
+
 
         // 使用StringRedisSerializer来序列化和反序列化redis的key值
         template.setKeySerializer(new StringRedisSerializer());
