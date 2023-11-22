@@ -11,17 +11,19 @@ import com.example.imaubookmanager.pojo.vo.LoginUser;
 import com.example.imaubookmanager.pojo.vo.UpdateUserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class SysUserImpl  implements UserDetailsService {
     @Autowired
     private SysUserDao sysUserDao;
@@ -46,6 +48,24 @@ public class SysUserImpl  implements UserDetailsService {
         List<String> permissionKeyList =  sysMenuDao.selectPermsByUserId(user.getId());
         return new LoginUser(user,permissionKeyList);
     }
+    //獲取用戶信息
+    public SysUserPojo getUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+        Long userid = loginUser.getUser().getId();
+        //根据用户名查询用户信息
+        LambdaQueryWrapper<SysUserPojo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserPojo::getId,userid);
+        SysUserPojo user = sysUserDao.selectOne(wrapper);
+        //如果查询不到数据就通过抛出异常来给出提示
+        if(Objects.isNull(user)){
+            throw new RuntimeException("用户名或密码错误");
+        }
+        return user;
+    }
+
+
+
     //添加一个用户
     public int addUser(AddUserVO addUserVO) {
         //获取当前时间
@@ -112,7 +132,7 @@ public class SysUserImpl  implements UserDetailsService {
     //查询用户信息
     public SysUserPojo selectUserById(Long id) {
         SysUserPojo sysUser = sysUserDao.selectById(id);
-
+        System.out.println(sysUser);
         //判断用户名是否存在
         if (sysUser == null) {
             throw new RuntimeException("用户名不存在");

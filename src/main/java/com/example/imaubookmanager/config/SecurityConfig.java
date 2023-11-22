@@ -47,8 +47,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();
         //把token校验过滤器添加到过滤器链中
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).
-                accessDeniedHandler(accessDeniedHandler);
+//        http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).
+//                accessDeniedHandler(accessDeniedHandler);
         //允许跨域
         http.cors();
     }

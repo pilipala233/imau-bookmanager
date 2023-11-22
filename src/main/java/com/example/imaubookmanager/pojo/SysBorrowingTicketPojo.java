@@ -13,12 +13,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("sys_borrowing_ticket")
-public class SysBorrowingTicket {
+public class SysBorrowingTicketPojo {
     @TableId("id")
     private int id;
 
     @TableField("book_id")
-    private int bookId;
+    private Long bookId;
 
     @TableField("plan_return_date")
     private Date planReturnDate;
@@ -26,8 +26,6 @@ public class SysBorrowingTicket {
     @TableField("rent_date")
     private Date rentDate;
 
-    @TableField("is_fine")
-    private int isFine;
 
     @TableField("return_date")
     private Date returnDate;
@@ -36,7 +34,7 @@ public class SysBorrowingTicket {
     private int isContinue;
 
     @TableField("user_id")
-    private int userId;
+    private Long userId;
 
     @TableField("todo_status")
     private int todoStatus;
@@ -53,5 +51,7 @@ public class SysBorrowingTicket {
     @TableField("book_name")
     private String bookName;
 
-    private String info;
+
+
+
 }

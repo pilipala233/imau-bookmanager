@@ -67,6 +67,18 @@ public class SysUserController {
         }
 
     }
+    @GetMapping("/getUserInfo")
+    public ResponseResult getUserInfo() {
+        try {
+            SysUserPojo data = sysUserImpl.getUserInfo();
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
+        }
+
+    }
+
     @PostMapping("/selectUserById")
     public ResponseResult selectUserById(@RequestParam("id") Long id) {
         SysUserPojo data = null;

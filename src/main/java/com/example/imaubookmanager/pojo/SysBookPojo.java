@@ -51,6 +51,8 @@ public class SysBookPojo {
     @TableField("url")
     private String url;
 
+    @TableField("count")
+    private Integer count;
     public static class ResponseResult {
     }
 }
