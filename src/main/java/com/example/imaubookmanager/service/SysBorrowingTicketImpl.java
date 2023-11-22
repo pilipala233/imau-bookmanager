@@ -1,5 +1,6 @@
 package com.example.imaubookmanager.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
@@ -8,7 +9,7 @@ import com.example.imaubookmanager.pojo.SysBookPojo;
 import com.example.imaubookmanager.pojo.SysBorrowingTicketPojo;
 import com.example.imaubookmanager.pojo.SysUserPojo;
 import com.example.imaubookmanager.pojo.vo.LoginUser;
-import com.example.imaubookmanager.pojo.vo.selectTicketByPageRespVO;
+import com.example.imaubookmanager.pojo.vo.SelectTicketByPageRespVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -72,33 +73,93 @@ public class SysBorrowingTicketImpl {
     }
 
     //分页查询借阅单
-    public IPage<selectTicketByPageRespVO> selectTicketByPage(int pageNum, int pageSize) {
-        // 构造分页对象
-       // Page<SysBorrowingTicketPojo> page = new Page<>(pageNum, pageSize);
-        // 构造查询条件
-//        QueryWrapper<SysBorrowingTicketPojo> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.and(wrapper -> wrapper
-//                .like("user_name", keyWord)
-//                .or()
-//                .like("book_name", keyWord)
-//
-//        );
-//        // 调用 MyBatis-Plus 提供的分页查询方法
-//        Page<SysBorrowingTicketPojo> data = sysBorrowingTicketDao.selectPage(page, queryWrapper);
-//        return data;
+    public IPage<SelectTicketByPageRespVO> selectTicketByPage(int pageNum, int pageSize) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         Long userid = loginUser.getUser().getId();
-        IPage<selectTicketByPageRespVO> pageResult = sysBorrowingTicketDao.selectTicketByPage(new Page<>(pageNum, pageSize),userid);
+        IPage<SelectTicketByPageRespVO> pageResult = sysBorrowingTicketDao.selectTicketByPage(new Page<>(pageNum, pageSize),userid);
         return pageResult;
 
 
-
-
-
-
-
     }
+
+    //归还
+    @Transactional(rollbackFor = Exception.class)
+    public int returnBook(int id) {
+        //先查询借阅单
+        SysBorrowingTicketPojo borrowingTicket = sysBorrowingTicketDao.selectById(id);
+        //再修改借阅单
+        LocalDate returnDate = LocalDate.now();
+        borrowingTicket.setReturnDate(java.sql.Date.valueOf(returnDate));
+        borrowingTicket.setIsContinue(2);
+        int count = sysBorrowingTicketDao.updateById(borrowingTicket);
+        //再修改图书剩余量
+        SysBookPojo book = sysBookImpl.getBookById(Math.toIntExact(borrowingTicket.getBookId()));
+        book.setCount(book.getCount()+1);
+        sysBookImpl.updateBook(book);
+        return count;
+    }
+
+    //续借
+
+    public int continueBook(int id) {
+        //先查询借阅单
+        SysBorrowingTicketPojo borrowingTicket = sysBorrowingTicketDao.selectById(id);
+        //再修改借阅单
+        LocalDate planReturnDate = LocalDate.parse(borrowingTicket.getPlanReturnDate().toString());
+        LocalDate newPlanReturnDate = planReturnDate.plusMonths(3);
+        borrowingTicket.setPlanReturnDate(java.sql.Date.valueOf(newPlanReturnDate));
+        borrowingTicket.setIsContinue(1);
+        int count = sysBorrowingTicketDao.updateById(borrowingTicket);
+        return count;
+    }
+
+    //借书申请驳回与同意
+    public int updateTicketStatus(int id, int status) {
+        //先查询借阅单
+        SysBorrowingTicketPojo borrowingTicket = sysBorrowingTicketDao.selectById(id);
+        //再修改借阅单
+        borrowingTicket.setTodoStatus(status);
+        int count = sysBorrowingTicketDao.updateById(borrowingTicket);
+        return count;
+    }
+
+
+    //超时通知
+    //查询还书时间超时的记录
+    public Page<SysBorrowingTicketPojo> selectBorrowingTicketByReturnDate(int pageNum, int pageSize) {
+
+        Page<SysBorrowingTicketPojo> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<SysBorrowingTicketPojo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lt("plan_return_date",LocalDate.now());
+        // 调用 MyBatis-Plus 提供的分页查询方法
+        Page<SysBorrowingTicketPojo> data = sysBorrowingTicketDao.selectPage(page, queryWrapper);
+        return data;
+    }
+
+    //借书成功通知
+    //查询借书表中is_notice 字段为0的记录返回给前端
+    public Page<SysBorrowingTicketPojo> selectBorrowingTicketByIsNotice(int pageNum, int pageSize) {
+
+        Page<SysBorrowingTicketPojo> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<SysBorrowingTicketPojo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_notice",0);
+        // 调用 MyBatis-Plus 提供的分页查询方法
+        Page<SysBorrowingTicketPojo> data = sysBorrowingTicketDao.selectPage(page, queryWrapper);
+        return data;
+    }
+
+    //更新借书表中is_notice 字段为1的记录,代表代办中用户以知晓图书通知
+    public int updateBorrowingTicketIsNotice(int id) {
+        //先查询借阅单
+        SysBorrowingTicketPojo borrowingTicket = sysBorrowingTicketDao.selectById(id);
+        //再修改借阅单
+        borrowingTicket.setIsNotice(1);
+        int count = sysBorrowingTicketDao.updateById(borrowingTicket);
+        return count;
+    }
+
+    //根据当前用户查询借书单
 
 }

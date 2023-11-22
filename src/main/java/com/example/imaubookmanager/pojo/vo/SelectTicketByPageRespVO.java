@@ -11,7 +11,7 @@ import java.util.Date;
 
 @AllArgsConstructor
 
-public class selectTicketByPageRespVO {
+public class SelectTicketByPageRespVO {
     private  String KeyWord;
     //这里是借书单的id
     private Integer id;
@@ -69,6 +69,7 @@ public class selectTicketByPageRespVO {
 
     private String userName;
 
+    private Long userType;
 
 
 

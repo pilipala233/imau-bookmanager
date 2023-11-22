@@ -50,7 +50,8 @@ public class SysBorrowingTicketPojo {
 
     @TableField("book_name")
     private String bookName;
-
+    @TableField("is_notice")
+    private int isNotice;
 
 
 
