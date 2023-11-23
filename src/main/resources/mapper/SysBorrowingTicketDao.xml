@@ -32,4 +32,35 @@
                  INNER JOIN sys_user AS u ON bt.user_id = u.id
         WHERE bt.user_id = #{userid} AND bt.todo_status != 0
     </select>
+    <select id="selectApprovalTicketByPage"
+            resultType="com.example.imaubookmanager.pojo.vo.SelectTicketByPageRespVO">
+
+        SELECT
+            bt.id,
+            b.isbn,
+            b.name,
+            b.author,
+            b.category_id,
+            b.detail,
+            b.status,
+            bc.name as type,
+            b.url,
+            b.count,
+            bt.plan_return_date,
+            bt.rent_date,
+            bt.return_date,
+            bt.is_continue,
+            bt.user_id,
+            bt.todo_status,
+            bt.approver_id,
+            bt.create_time,
+            bt.user_name,
+            u.user_type
+        FROM sys_borrowing_ticket AS bt
+                 INNER JOIN sys_book AS b ON bt.book_id = b.id
+                 INNER JOIN sys_book_category AS bc ON b.type = bc.id
+                 INNER JOIN sys_user AS u ON bt.user_id = u.id
+        WHERE bt.todo_status = 0
+
+    </select>
 </mapper>

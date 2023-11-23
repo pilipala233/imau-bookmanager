@@ -13,4 +13,7 @@ public interface SysBorrowingTicketDao extends BaseMapper<SysBorrowingTicketPojo
 
 
     IPage<SelectTicketByPageRespVO> selectTicketByPage(IPage<SelectTicketByPageRespVO> iPage, @Param("userid") Long userid);
+
+
+    IPage<SelectTicketByPageRespVO> selectApprovalTicketByPage(IPage<SelectTicketByPageRespVO> iPage, @Param("userid") Long userid);
 }

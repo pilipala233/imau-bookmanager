@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 public class UpdateTicketStatusVO {
     private int id;
     private int status;
-    private int isNotice;
+
 }

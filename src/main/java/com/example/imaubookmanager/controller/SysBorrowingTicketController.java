@@ -46,6 +46,19 @@ public class SysBorrowingTicketController {
             return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
         }
     }
+    //查询当前用户下的审批记录
+    @PostMapping("/selectApprovalTicketByPage")
+    public ResponseResult selectApprovalTicketByPage(@RequestBody SearchTicketVO searchVO) {
+        try {
+
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", sysBorrowingTicketImpl.selectApprovalTicketByPage(searchVO.getPageNum(), searchVO.getPageSize()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
+        }
+    }
+
+
     //归还
     @PostMapping("/returnBook")
     public ResponseResult returnBook(@RequestParam("id") int id) {
@@ -99,7 +112,7 @@ public class SysBorrowingTicketController {
 
     }
 
-    @PostMapping("/updateBorrowingTicketIsNotice")
+    @GetMapping("/updateBorrowingTicketIsNotice")
     public ResponseResult updateBorrowingTicketIsNotice(@RequestParam("id") int id) {
         try {
             int inserCount =  sysBorrowingTicketImpl.updateBorrowingTicketIsNotice(id);
