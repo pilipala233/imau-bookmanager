@@ -53,6 +53,9 @@ public class SysBookPojo {
 
     @TableField("count")
     private Integer count;
+
+    @TableField("file_name")
+    private String fileName;
     public static class ResponseResult {
     }
 }

@@ -128,6 +128,23 @@ public class SysUserImpl  implements UserDetailsService {
 
 
     }
+    //批量删除
+    public int deleteUsers(Long[] ids) {
+        int deleteCount = 0;
+
+        for (Long id : ids) {
+            SysUserPojo sysUser = sysUserDao.selectById(id);
+
+            // 判断用户名是否存在
+            if (sysUser != null) {
+                int count = sysUserDao.deleteById(id);
+                deleteCount += count;
+            }
+        }
+
+        return deleteCount;
+    }
+
 
     //查询用户信息
     public SysUserPojo selectUserById(Long id) {
@@ -150,10 +167,7 @@ public class SysUserImpl  implements UserDetailsService {
         QueryWrapper<SysUserPojo> queryWrapper = new QueryWrapper<>();
         queryWrapper.and(wrapper -> wrapper
                 .like("user_name", keyWord)
-                .or()
-                .like("phonenumber", keyWord)
-                .or()
-                .like("email", keyWord)
+
         );
         // 调用 MyBatis-Plus 提供的分页查询方法
         Page<SysUserPojo> sysUserPojoPage = sysUserDao.selectPage(page, queryWrapper);

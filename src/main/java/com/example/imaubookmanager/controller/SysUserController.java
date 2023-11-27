@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.imaubookmanager.pojo.ResponseResult;
 import com.example.imaubookmanager.pojo.SysUserPojo;
 import com.example.imaubookmanager.pojo.vo.AddUserVO;
+import com.example.imaubookmanager.pojo.vo.BatchIdsVO;
 import com.example.imaubookmanager.pojo.vo.SearchUserVO;
 import com.example.imaubookmanager.pojo.vo.UpdateUserVO;
+import com.example.imaubookmanager.service.SysMenuImpl;
 import com.example.imaubookmanager.service.SysUserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class SysUserController {
     @Autowired
     SysUserImpl sysUserImpl;
+    @Autowired
+    SysMenuImpl sysMenuImpl;
 
    @PostMapping("/addUser")
 
@@ -53,7 +57,7 @@ public class SysUserController {
 
     }
 
-    @PostMapping("/deleteUser")
+    @GetMapping("/deleteUser")
     public ResponseResult deleteUser(@RequestParam("id") Long id) {
         try {
             int inserCount =  sysUserImpl.deleteUser(id);
@@ -67,6 +71,22 @@ public class SysUserController {
         }
 
     }
+    @PostMapping("/deleteUsers")
+    public ResponseResult deleteUsers(@RequestBody BatchIdsVO batchIdsVO) {
+        try {
+            System.out.println("====");
+            System.out.println(batchIdsVO.getIds());
+            int deleteCount = sysUserImpl.deleteUsers(batchIdsVO.getIds());
+            if (deleteCount > 0) {
+                return new ResponseResult(HttpStatus.OK.value(), "批量删除成功");
+            }
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量删除失败或用户不存在");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量删除失败");
+        }
+    }
+
     @GetMapping("/getUserInfo")
     public ResponseResult getUserInfo() {
         try {
@@ -113,5 +133,15 @@ public class SysUserController {
         }
 
     }
+    @GetMapping ("/selectMenuByUserId")
+    public ResponseResult selectMenuByUserId() {
+        try {
 
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", sysMenuImpl.selectMenuByUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
+        }
+
+    }
 }

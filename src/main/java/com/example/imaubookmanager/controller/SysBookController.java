@@ -8,6 +8,9 @@ import com.example.imaubookmanager.service.SysBookImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @CrossOrigin
@@ -72,6 +75,27 @@ public class SysBookController {
             e.printStackTrace();
             return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
         }
+    }
+
+    @PostMapping("/uploadfile")
+    public ResponseResult uploadfile(@RequestParam("file") MultipartFile file) {
+        try {
+
+            String data = sysBookService.uploadfile(file);
+            if (data.length()!=0) {
+                return new ResponseResult(HttpStatus.OK.value(), "查询成功", data);
+            } else {
+                return new ResponseResult(HttpStatus.NOT_FOUND.value(), "上传失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "上传失败");
+        }
+    }
+
+    @GetMapping("/download/{fileName}")
+    public void downloadFile(@PathVariable String fileName, HttpServletResponse response) {
+        sysBookService.downloadFile(fileName, response);
     }
 
     @PostMapping("/getBooksByPage")

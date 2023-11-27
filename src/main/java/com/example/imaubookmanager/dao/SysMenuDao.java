@@ -9,4 +9,5 @@ import java.util.List;
 @Mapper
 public interface SysMenuDao extends BaseMapper<SysMenuPojo> {
     List<String> selectPermsByUserId(Long id);
+    List<SysMenuPojo> selectMenuByUserId(Long id);
 }
