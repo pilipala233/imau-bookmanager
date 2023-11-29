@@ -7,6 +7,7 @@ import com.example.imaubookmanager.dao.SysBorrowingTicketDao;
 import com.example.imaubookmanager.pojo.SysBookPojo;
 import com.example.imaubookmanager.pojo.SysBorrowingTicketPojo;
 import com.example.imaubookmanager.pojo.SysUserPojo;
+import com.example.imaubookmanager.pojo.vo.AddBorrowingVO;
 import com.example.imaubookmanager.pojo.vo.LoginUser;
 import com.example.imaubookmanager.pojo.vo.SelectTicketByPageRespVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 
@@ -73,13 +75,60 @@ public class SysBorrowingTicketImpl {
 
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
+    public int addBatchBorrowingTickets(List<AddBorrowingVO> addBorrowingVOList) {
+        int successCount = 0;
+
+        for (AddBorrowingVO addBorrowingVO : addBorrowingVOList) {
+            long bookId = addBorrowingVO.getBookId();
+            long userId = addBorrowingVO.getUserId();
+
+            SysBookPojo book = sysBookImpl.getBookById((int) bookId);
+
+            if (book.getCount() > 0) {
+                SysUserPojo user = sysUserImpl.selectUserById(userId);
+
+                SysBorrowingTicketPojo borrowingTicket = new SysBorrowingTicketPojo();
+                borrowingTicket.setBookId(bookId);
+                borrowingTicket.setUserId(userId);
+
+                LocalDate rentDate = LocalDate.now();
+                borrowingTicket.setRentDate(java.sql.Date.valueOf(rentDate));
+
+                LocalDate planReturnDate = rentDate.plusMonths(3);
+                borrowingTicket.setPlanReturnDate(java.sql.Date.valueOf(planReturnDate));
+
+                if (Integer.parseInt(user.getUserType()) == 1) {
+                    borrowingTicket.setTodoStatus(1);
+                }
+
+                borrowingTicket.setCreateTime(java.sql.Date.valueOf(rentDate));
+                borrowingTicket.setUserName(user.getUserName());
+                borrowingTicket.setBookName(book.getName());
+
+                int count = sysBorrowingTicketDao.insert(borrowingTicket);
+
+                book.setCount(book.getCount() - 1);
+                sysBookImpl.updateBook(book);
+
+                if (count > 0) {
+                    successCount++;
+                }
+            }
+        }
+
+        return successCount;
+    }
+
+
     //分页查询借阅单
-    public IPage<SelectTicketByPageRespVO> selectTicketByPage(int pageNum, int pageSize) {
+    public IPage<SelectTicketByPageRespVO> selectTicketByPage(int pageNum, int pageSize,String keyWord) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         Long userid = loginUser.getUser().getId();
-        IPage<SelectTicketByPageRespVO> pageResult = sysBorrowingTicketDao.selectTicketByPage(new Page<>(pageNum, pageSize),userid);
+        IPage<SelectTicketByPageRespVO> pageResult = sysBorrowingTicketDao.selectTicketByPage(new Page<>(pageNum, pageSize),userid,keyWord);
         return pageResult;
 
 
@@ -122,6 +171,23 @@ public class SysBorrowingTicketImpl {
         int count =sysBookImpl.updateBook(book);
         return count;
     }
+
+    //批量归还
+    @Transactional(rollbackFor = Exception.class)
+    public int returnBooks(Long[] ids) {
+        int count = 0;
+
+        for (Long id : ids) {
+                int tempcount = returnBook(Math.toIntExact(id));
+                count += tempcount;
+
+        }
+
+        return count;
+    }
+
+
+
 
     //续借
 

@@ -3,14 +3,13 @@ package com.example.imaubookmanager.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.imaubookmanager.pojo.ResponseResult;
 import com.example.imaubookmanager.pojo.SysBorrowingTicketPojo;
-import com.example.imaubookmanager.pojo.vo.AddBorrowingVO;
-import com.example.imaubookmanager.pojo.vo.SearchTicketVO;
-import com.example.imaubookmanager.pojo.vo.SearchUserVO;
-import com.example.imaubookmanager.pojo.vo.UpdateTicketStatusVO;
+import com.example.imaubookmanager.pojo.vo.*;
 import com.example.imaubookmanager.service.SysBorrowingTicketImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -35,12 +34,35 @@ public class SysBorrowingTicketController {
             return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "添加失败");
         }
     }
+
+    //批量借阅
+    @PostMapping("/addBatchBorrowingTickets")
+    public ResponseResult addBatchBorrowingTickets(@RequestBody List<AddBorrowingVO> addBorrowingVOList) {
+        try {
+            int successCount = sysBorrowingTicketImpl.addBatchBorrowingTickets(addBorrowingVOList);
+
+            if (successCount > 0) {
+                return new ResponseResult(HttpStatus.OK.value(), "成功借阅" + successCount + "本书籍");
+            } else {
+                return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量借阅失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量借阅失败");
+        }
+    }
+
+
+
+
+
     //查询当前用户名下的图书记录
     @PostMapping("/selectTicketByPage")
     public ResponseResult selectTicketByPage(@RequestBody SearchTicketVO searchVO) {
         try {
+            System.out.println(searchVO.getKeyWord());
+            return new ResponseResult(HttpStatus.OK.value(), "查询成功", sysBorrowingTicketImpl.selectTicketByPage(searchVO.getPageNum(), searchVO.getPageSize(),searchVO.getKeyWord()));
 
-            return new ResponseResult(HttpStatus.OK.value(), "查询成功", sysBorrowingTicketImpl.selectTicketByPage(searchVO.getPageNum(), searchVO.getPageSize()));
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "查询失败");
@@ -74,6 +96,20 @@ public class SysBorrowingTicketController {
             return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "归还失败");
         }
 
+    }
+    @PostMapping("/returnBooks")
+    public ResponseResult returnBooks(@RequestBody BatchIdsVO batchIdsVO) {
+        try {
+
+            int deleteCount = sysBorrowingTicketImpl.returnBooks(batchIdsVO.getIds());
+            if (deleteCount > 0) {
+                return new ResponseResult(HttpStatus.OK.value(), "批量归还成功");
+            }
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量归还失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "批量归还失败");
+        }
     }
 
     //续借

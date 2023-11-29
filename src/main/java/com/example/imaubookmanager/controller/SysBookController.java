@@ -101,7 +101,7 @@ public class SysBookController {
     @PostMapping("/getBooksByPage")
     public ResponseResult getBooksByPage(@RequestBody SearchBookVO searchBookVO) {
         try {
-            Page<SysBookPojo> data = sysBookService.getBooksByPage(searchBookVO.getPageNum(), searchBookVO.getPageSize(), searchBookVO.getKeyWord());
+            Page<SysBookPojo> data = sysBookService.getBooksByPage(searchBookVO.getPageNum(), searchBookVO.getPageSize(), searchBookVO.getKeyWord(),searchBookVO.getCount(),searchBookVO.getType());
             return new ResponseResult(HttpStatus.OK.value(), "查询成功", data);
         } catch (Exception e) {
             e.printStackTrace();

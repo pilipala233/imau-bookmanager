@@ -11,4 +11,6 @@ public class SearchBookVO {
     private int pageNum;
     private int pageSize;
     private String keyWord;
+    private String type;
+    private int count;
 }

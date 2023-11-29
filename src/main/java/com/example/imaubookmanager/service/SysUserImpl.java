@@ -9,6 +9,7 @@ import com.example.imaubookmanager.pojo.SysUserPojo;
 import com.example.imaubookmanager.pojo.vo.AddUserVO;
 import com.example.imaubookmanager.pojo.vo.LoginUser;
 import com.example.imaubookmanager.pojo.vo.UpdateUserVO;
+import com.example.imaubookmanager.pojo.vo.RegisteVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -79,11 +80,19 @@ public class SysUserImpl  implements UserDetailsService {
 
         int insertCount = sysUserDao.insert(sysUserPojo);
         return insertCount;
-
-
-
     }
+    public int register(RegisteVO registeVO) {
+        //获取当前时间
 
+        SysUserPojo sysUserPojo = new SysUserPojo();
+        registeVO.setPassword(passwordEncoder.encode(registeVO.getPassword()));
+
+        sysUserPojo.setCreateTime(new Date());
+        BeanUtils.copyProperties(registeVO, sysUserPojo);
+
+        int insertCount = sysUserDao.insert(sysUserPojo);
+        return insertCount;
+    }
     //更新用户信息
     public int updateUser(UpdateUserVO updateUserVO) {
         SysUserPojo sysUser = sysUserDao.selectById(updateUserVO.getId());

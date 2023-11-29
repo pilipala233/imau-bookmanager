@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
 public interface SysBorrowingTicketDao extends BaseMapper<SysBorrowingTicketPojo> {
 
 
-    IPage<SelectTicketByPageRespVO> selectTicketByPage(IPage<SelectTicketByPageRespVO> iPage, @Param("userid") Long userid);
+    IPage<SelectTicketByPageRespVO> selectTicketByPage(IPage<SelectTicketByPageRespVO> iPage, @Param("userid") Long userid,@Param("keyWord") String keyWord);
 
 
     IPage<SelectTicketByPageRespVO> selectApprovalTicketByPage(IPage<SelectTicketByPageRespVO> iPage, @Param("userid") Long userid);

@@ -3,10 +3,7 @@ package com.example.imaubookmanager.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.imaubookmanager.pojo.ResponseResult;
 import com.example.imaubookmanager.pojo.SysUserPojo;
-import com.example.imaubookmanager.pojo.vo.AddUserVO;
-import com.example.imaubookmanager.pojo.vo.BatchIdsVO;
-import com.example.imaubookmanager.pojo.vo.SearchUserVO;
-import com.example.imaubookmanager.pojo.vo.UpdateUserVO;
+import com.example.imaubookmanager.pojo.vo.*;
 import com.example.imaubookmanager.service.SysMenuImpl;
 import com.example.imaubookmanager.service.SysUserImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +19,9 @@ public class SysUserController {
     @Autowired
     SysMenuImpl sysMenuImpl;
 
-   @PostMapping("/addUser")
+    @PostMapping("/addUser")
 
-
+    @PreAuthorize("hasAuthority('user:add')" )
     public ResponseResult addUser(@RequestBody AddUserVO addUserVO){
         try {
             int inserCount =  sysUserImpl.addUser(addUserVO);
@@ -39,20 +36,42 @@ public class SysUserController {
         }
 
     }
+    //用户注册
+    @PostMapping("/register")
+    public ResponseResult register(@RequestBody RegisteVO registeVO){
+        try {
+            int inserCount =  sysUserImpl.register(registeVO);
+            if(inserCount == 1){
+                return new ResponseResult(HttpStatus.OK.value(), "注册成功");
+            }else{
+                return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "注册失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "注册失败");
+        }
+
+    }
 
     @PostMapping("/updateUser")
-    @PreAuthorize("hasAuthority('system:user:edit')")
+//    @PreAuthorize("hasAuthority('system:user:edit')")
     public ResponseResult updateUser(@RequestBody UpdateUserVO updateUserVO) {
         try {
+            if (updateUserVO.getId() == null || updateUserVO.getUserName() == null || updateUserVO.getPhoneNumber() == null || updateUserVO.getEmail() == null
+                    || updateUserVO.getUserName().isEmpty() || updateUserVO.getPhoneNumber().isEmpty() || updateUserVO.getEmail().isEmpty()) {
+                return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "参数不能为空");
+            }
+
+
             int inserCount =  sysUserImpl.updateUser(updateUserVO);
             if(inserCount == 1){
-                return new ResponseResult(HttpStatus.OK.value(), "更新成功");
+                return new ResponseResult(HttpStatus.OK.value(), "更新成功",sysUserImpl.selectUserById(updateUserVO.getId()));
             }
-            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "添加失败");
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "更新失败");
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "添加失败");
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "更新失败");
         }
 
     }

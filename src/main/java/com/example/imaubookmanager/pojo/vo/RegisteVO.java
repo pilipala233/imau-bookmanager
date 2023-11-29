@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class AddUserVO {
+public class RegisteVO {
 
 
 
@@ -30,7 +30,7 @@ public class AddUserVO {
 
     private String sex;
 
-    private int userType;
+
 
 
 

@@ -1,6 +1,7 @@
 package com.example.imaubookmanager.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.imaubookmanager.dao.SysBookDao;
 import com.example.imaubookmanager.pojo.SysBookPojo;
@@ -118,14 +119,30 @@ public class SysBookImpl {
 
     }
 
-    public Page<SysBookPojo> getBooksByPage(int pageNum, int pageSize, String keyword) {
+    public Page<SysBookPojo> getBooksByPage(int pageNum, int pageSize, String keyword,int count,String type) {
 
             Page<SysBookPojo> page = new Page<>(pageNum, pageSize);
             QueryWrapper<SysBookPojo> queryWrapper = new QueryWrapper<>();
-            queryWrapper.like("name", keyword)
-                    .or().like("author", keyword)
-                    .or().like("detail", keyword)
-                    .or().like("publisher", keyword);
+        // 判断 keyword 是否为空来决定是否添加 like 查询条件
+            if (StringUtils.isNotBlank(keyword)) {
+                queryWrapper.and(wrapper -> wrapper
+                        .like("name", keyword)
+                        .or().like("author", keyword)
+                        .or().like("detail", keyword)
+                        .or().like("publisher", keyword)
+                );
+            }
+            // 根据参数 count 是否为空，动态添加条件
+            if (count >0) {
+                queryWrapper.ge("count", count);
+            }else if(count == 0){
+                queryWrapper.eq("count", 0);
+            }
+
+            // 根据参数 type 是否为空，动态添加条件
+            if (type != null && !type.isEmpty()) {
+                queryWrapper.eq("type", type);
+            }
             // 调用 MyBatis-Plus 提供的分页查询方法
             Page<SysBookPojo> sysBookPojo = sysBookDao.selectPage(page, queryWrapper);
             return sysBookPojo;
