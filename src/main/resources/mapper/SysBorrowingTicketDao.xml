@@ -30,7 +30,7 @@
                  INNER JOIN sys_book AS b ON bt.book_id = b.id
                  INNER JOIN sys_book_category AS bc ON b.type = bc.id
                  INNER JOIN sys_user AS u ON bt.user_id = u.id
-        WHERE bt.user_id = #{userid} AND bt.todo_status != 0
+        WHERE bt.user_id = #{userid} AND bt.todo_status = 1
         <if test="keyWord != null and keyWord != ''">
             AND (b.name LIKE CONCAT('%', #{keyWord}, '%') OR b.author LIKE CONCAT('%', #{keyWord}, '%'))
         </if>

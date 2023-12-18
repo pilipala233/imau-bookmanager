@@ -137,13 +137,13 @@ public class SysBorrowingTicketController {
         try {
             int inserCount =  sysBorrowingTicketImpl.updateTicketStatus(updateTicketStatusVO.getId(),updateTicketStatusVO.getStatus());
             if(inserCount == 1){
-                return new ResponseResult(HttpStatus.OK.value(), "续借成功");
+                return new ResponseResult(HttpStatus.OK.value(), "成功");
             }else{
-                return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "续借失败");
+                return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "失败");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "续借失败");
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "失败");
         }
 
     }

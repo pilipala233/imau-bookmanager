@@ -48,7 +48,7 @@ public class SysUserController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), "注册失败");
+            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
 
     }

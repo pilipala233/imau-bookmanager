@@ -53,7 +53,7 @@ public class SysBorrowingTicketImpl {
             LocalDate planReturnDate = rentDate.plusMonths(3);
             borrowingTicket.setPlanReturnDate(java.sql.Date.valueOf(planReturnDate));
 
-            if (Integer.parseInt(user.getUserType()) == 1){
+            if (Integer.parseInt(user.getUserType()) == 2){
                 borrowingTicket.setTodoStatus(1);
             }
 
@@ -212,10 +212,23 @@ public class SysBorrowingTicketImpl {
     public int updateTicketStatus(int id, int status) {
         //先查询借阅单
         SysBorrowingTicketPojo borrowingTicket = sysBorrowingTicketDao.selectById(id);
-        //再修改借阅单
-        borrowingTicket.setTodoStatus(status);
-        int count = sysBorrowingTicketDao.updateById(borrowingTicket);
-        return count;
+        if (status == 2){
+            //再修改图书剩余量
+            SysBookPojo book = sysBookImpl.getBookById(Math.toIntExact(borrowingTicket.getBookId()));
+            book.setCount(book.getCount()+1);
+            sysBookImpl.updateBook(book);
+            //再删除借阅单
+            int count = sysBorrowingTicketDao.deleteById(id);
+
+            return count;
+
+        }else {
+            //再修改借阅单
+            borrowingTicket.setTodoStatus(status);
+            int count = sysBorrowingTicketDao.updateById(borrowingTicket);
+            return count;
+        }
+
     }
 
 

@@ -69,6 +69,15 @@ public class SysUserImpl  implements UserDetailsService {
 
     //添加一个用户
     public int addUser(AddUserVO addUserVO) {
+
+        //同一个用户名不能重复注册
+        LambdaQueryWrapper<SysUserPojo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserPojo::getUserName,addUserVO.getUserName());
+        SysUserPojo user = sysUserDao.selectOne(wrapper);
+        if(user != null){
+            throw new RuntimeException("用户名已存在");
+        }
+
         //获取当前时间
 
 
@@ -82,6 +91,13 @@ public class SysUserImpl  implements UserDetailsService {
         return insertCount;
     }
     public int register(RegisteVO registeVO) {
+        //同一个用户名不能重复注册
+        LambdaQueryWrapper<SysUserPojo> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserPojo::getUserName,registeVO.getUserName());
+        SysUserPojo user = sysUserDao.selectOne(wrapper);
+        if(user != null){
+            throw new RuntimeException("用户名已存在");
+        }
         //获取当前时间
 
         SysUserPojo sysUserPojo = new SysUserPojo();
